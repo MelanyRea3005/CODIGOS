@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#F4F6FB"
+    android:padding="32dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:text="Editar gasto"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#212121"
+        android:layout_marginBottom="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/etDescripcion"
+        android:hint="Descripción"
+        android:background="@android:color/white"
+        android:padding="14dp"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
+
+    <EditText
+        android:id="@+id/etMonto"
+        android:hint="Monto"
+        android:inputType="numberDecimal"
+        android:background="@android:color/white"
+        android:padding="14dp"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
+
+    <EditText
+        android:id="@+id/etFecha"
+        android:hint="Fecha"
+        android:focusable="false"
+        android:clickable="true"
+        android:background="@android:color/white"
+        android:padding="14dp"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
+
+    <Spinner
+        android:id="@+id/spinnerCategoria"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@android:color/white"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnGuardar"
+        android:text="GUARDAR CAMBIOS"
+        android:textAllCaps="true"
+        android:background="#1976D2"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:layout_marginTop="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:gravity="center" />
+
+</LinearLayout>

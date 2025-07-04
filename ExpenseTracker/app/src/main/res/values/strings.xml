@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">ExpenseTracker</string>
+    <string name="hint_descripcion">Descripción</string>
+    <string name="hint_monto">Monto</string>
+    <string name="hint_fecha">Fecha</string>
+    <string name="hint_categoria">Categoría</string>
+    <string name="gasto">Gasto</string>
+    <string name="ingreso">Ingreso</string>
+    <string name="guardar">Guardar</string>
+    <string name="agregar_nuevo_gasto">AGREGAR NUEVO GASTO/INGRESO</string>
+    <string name="ver_historial">VER HISTORIAL</string>
+    <string name="filtrar">FILTRAR POR MES/CATEGORÍA</string>
+    <string name="ultimos_gastos">Últimos gastos</string>
+    <string name="balance">Balance: $%1$.2f USD</string>
+    <string name="ingresos">Ingresos: $%1$.2f USD</string>
+    <string name="gastos">Gastos: $%1$.2f USD</string>
+</resources>

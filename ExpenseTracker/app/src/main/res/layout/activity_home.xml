@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/ingresosTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ingresos: $0.00 USD"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#4CAF50"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/gastosTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gastos: $0.00 USD"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#F44336"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/balanceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Balance: $0.00 USD"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:layout_marginBottom="12dp" />
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChart"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/addExpenseButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AGREGAR NUEVO GASTO/INGRESO"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <!-- Nuevo botón de billeteras -->
+        <Button
+            android:id="@+id/walletButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="BILLETERAS"
+            android:layout_marginBottom="10dp"
+            android:textColor="#2196F3"
+            android:backgroundTint="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/viewHistoryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="VER HISTORIAL"
+            android:layout_marginBottom="10dp"
+            android:textColor="#2196F3"
+            android:backgroundTint="#FFFFFF"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/filterButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="FILTRAR POR MES/CATEGORÍA"
+            android:textColor="#2196F3"
+            android:backgroundTint="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Últimos gastos"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#222"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="6dp"
+            android:gravity="start"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/expensesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginBottom="16dp"/>
+
+    </LinearLayout>
+</ScrollView>
