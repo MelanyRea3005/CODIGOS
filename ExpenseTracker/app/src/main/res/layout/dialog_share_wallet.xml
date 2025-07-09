@@ -5,17 +5,38 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <EditText
+        android:id="@+id/editTextEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email del usuario">
+        android:hint="Email del usuario"
+        android:inputType="textEmailAddress"
+        android:layout_marginBottom="16dp"/>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailInput"
-            android:layout_width="match_parent"
+    <RadioGroup
+        android:id="@+id/radioGroupPermission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/radioRead"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress" />
+            android:text="Solo lectura"
+            android:checked="true"/>
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <RadioButton
+            android:id="@+id/radioWrite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lectura y escritura"/>
+    </RadioGroup>
 
+    <Button
+        android:id="@+id/shareButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Compartir"
+        android:layout_marginTop="24dp"/>
 </LinearLayout>

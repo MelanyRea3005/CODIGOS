@@ -57,5 +57,9 @@
             android:name=".ui.WalletActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.WalletDetailsActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
