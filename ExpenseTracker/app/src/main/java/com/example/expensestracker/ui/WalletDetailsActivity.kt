@@ -1,216 +1,311 @@
 package com.example.expensestracker.ui
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
+import android.view.View
 import android.widget.EditText
-import android.widget.RadioGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.expensestracker.R
 import com.example.expensestracker.databinding.ActivityWalletDetailsBinding
-import com.example.expensestracker.databinding.DialogShareWalletBinding
-import com.example.expensestracker.model.SharePermission
-import com.example.expensestracker.model.Transaction
-import com.example.expensestracker.model.TransactionType
-import com.example.expensestracker.model.Wallet
-import com.example.expensestracker.model.WalletManager
-import com.example.expensestracker.network.AuthManager
+import com.example.expensestracker.model.ScheduledExpense
+import com.example.expensestracker.repository.ScheduledExpenseRepository
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.utils.ColorTemplate
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.Timestamp
-import kotlinx.coroutines.launch
-import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.*
 
 class WalletDetailsActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityWalletDetailsBinding
-    private lateinit var walletManager: WalletManager
-    private lateinit var transactionAdapter: TransactionAdapter
-    private var walletId: String = ""
-    private var currentWallet: Wallet? = null
-    private var currentPermission: SharePermission = SharePermission.READ_WRITE // default, will update
+    private lateinit var adapterPendientesPagados: ScheduledExpenseAdapter
+    private lateinit var adapterVencidos: ScheduledExpenseAdapter
+    private val scheduledExpenseRepository = ScheduledExpenseRepository()
+    private var mesSeleccionado: String = SimpleDateFormat("MM-yyyy", Locale.getDefault()).format(Date())
+    private var billeteraId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWalletDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        walletId = intent.getStringExtra("walletId") ?: ""
-        if (walletId.isEmpty()) {
+        billeteraId = intent.getStringExtra("walletId")
+        if (billeteraId.isNullOrBlank()) {
+            Toast.makeText(this, "Billetera no especificada", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        setupViews()
-        loadWalletData()
-    }
+        adapterPendientesPagados = ScheduledExpenseAdapter(
+            emptyList(),
+            onMarkAsPaid = { expense -> mostrarDialogoPago(expense) },
+            onEdit = { expense -> mostrarDialogoEditarNombre(expense) },
+            onDelete = { expense -> mostrarDialogoEliminarGasto(expense) }
+        )
+        adapterVencidos = ScheduledExpenseAdapter(
+            emptyList(),
+            onMarkAsPaid = { expense -> mostrarDialogoPago(expense) },
+            onEdit = { expense -> mostrarDialogoEditarNombre(expense) },
+            onDelete = { expense -> mostrarDialogoEliminarGasto(expense) }
+        )
 
-    private fun setupViews() {
-        walletManager = WalletManager()
-        transactionAdapter = TransactionAdapter(emptyList())
-
-        binding.transactionsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@WalletDetailsActivity)
-            adapter = transactionAdapter
-        }
+        binding.recyclerPendientesPagados.layoutManager = LinearLayoutManager(this)
+        binding.recyclerPendientesPagados.adapter = adapterPendientesPagados
+        binding.recyclerVencidos.layoutManager = LinearLayoutManager(this)
+        binding.recyclerVencidos.adapter = adapterVencidos
 
         binding.addTransactionFab.setOnClickListener {
-            if (currentPermission == SharePermission.READ_WRITE) {
-                showAddTransactionDialog()
-            } else {
-                Toast.makeText(this, "No tienes permiso para agregar transacciones", Toast.LENGTH_SHORT).show()
-            }
+            mostrarDialogoAgregarGastoProgramado()
         }
 
-        binding.shareWalletButton.setOnClickListener {
-            showShareWalletDialog()
+        binding.tvMesActual.text = mesSeleccionado
+
+        binding.btnMesAnterior.setOnClickListener {
+            val sdf = SimpleDateFormat("MM-yyyy", Locale.getDefault())
+            val cal = Calendar.getInstance()
+            cal.time = sdf.parse(mesSeleccionado)!!
+            cal.add(Calendar.MONTH, -1)
+            mesSeleccionado = sdf.format(cal.time)
+            binding.tvMesActual.text = mesSeleccionado
+            cargarGastosProgramadosDeFirestore()
         }
-    }
-    private fun loadWalletData() {
-        walletManager = WalletManager()
-        lifecycleScope.launch {
-            try {
-                currentWallet = walletManager.getWallet(walletId)
-                currentWallet?.let { wallet ->
-                    binding.walletNameText.text = wallet.name
-                    binding.walletBalanceText.text = "Balance: $${String.format("%.2f", wallet.balance)}"
 
-                    if (wallet.ownerId == AuthManager.getCurrentUserId()) {
-                        currentPermission = SharePermission.READ_WRITE
-                        binding.shareWalletButton.visibility = android.view.View.VISIBLE
-                        binding.addTransactionFab.show()
-                    } else {
-                        val permission = walletManager.getUserPermission(walletId, AuthManager.getCurrentUserId())
-                        currentPermission = permission ?: SharePermission.READ_ONLY
-                        binding.shareWalletButton.visibility = android.view.View.GONE
-                        if (currentPermission == SharePermission.READ_WRITE) {
-                            binding.addTransactionFab.show()
-                        } else {
-                            binding.addTransactionFab.hide()
-                        }
-                    }
-                }
-
-
-                walletManager.observeTransactions(walletId) { transactions ->
-                    transactionAdapter.updateList(transactions)
-                    setupPieChart(transactions)
-                }
-
-            } catch (e: Exception) {
-                Toast.makeText(this@WalletDetailsActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        binding.btnMesSiguiente.setOnClickListener {
+            val sdf = SimpleDateFormat("MM-yyyy", Locale.getDefault())
+            val cal = Calendar.getInstance()
+            cal.time = sdf.parse(mesSeleccionado)!!
+            cal.add(Calendar.MONTH, 1)
+            mesSeleccionado = sdf.format(cal.time)
+            binding.tvMesActual.text = mesSeleccionado
+            cargarGastosProgramadosDeFirestore()
         }
+
+        cargarGastosProgramadosDeFirestore()
     }
 
-    private fun setupPieChart(transactions: List<Transaction>) {
+    private fun cargarGastosProgramadosDeFirestore() {
+        val mesActual = mesSeleccionado
+        scheduledExpenseRepository.getScheduledExpenses(
+            billeteraId = billeteraId!!,
+            mes = mesActual,
+            onResult = { expenses ->
+                val now = System.currentTimeMillis()
+                val pendientesPagados = expenses.filter {
+                    val pagado = it.fechaPago != null
+                    val vencido = !pagado && it.fechaProgramada < now
+                    !vencido
+                }.sortedBy { it.fechaProgramada }
+
+                val vencidos = expenses.filter {
+                    val pagado = it.fechaPago != null
+                    val vencido = !pagado && it.fechaProgramada < now
+                    vencido
+                }.sortedBy { it.fechaProgramada }
+
+                adapterPendientesPagados.updateList(pendientesPagados)
+                adapterVencidos.updateList(vencidos)
+
+                binding.tituloVencidos.visibility = if (vencidos.isNotEmpty()) View.VISIBLE else View.GONE
+                binding.recyclerVencidos.visibility = if (vencidos.isNotEmpty()) View.VISIBLE else View.GONE
+
+                mostrarPieChartYPorPagar(expenses)
+            },
+            onError = { e ->
+                adapterPendientesPagados.updateList(emptyList())
+                adapterVencidos.updateList(emptyList())
+                binding.tituloVencidos.visibility = View.GONE
+                binding.recyclerVencidos.visibility = View.GONE
+                mostrarPieChartYPorPagar(emptyList())
+                Toast.makeText(this, "Error cargando gastos programados: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    private fun mostrarPieChartYPorPagar(expenses: List<ScheduledExpense>) {
+        val now = System.currentTimeMillis()
+        val montoPagado = expenses.filter { it.fechaPago != null }.sumOf { it.montoReal ?: it.montoEstimado }
+        val montoPendiente = expenses.filter { it.fechaPago == null && it.fechaProgramada >= now }.sumOf { it.montoEstimado }
+        val montoVencido = expenses.filter { it.fechaPago == null && it.fechaProgramada < now }.sumOf { it.montoEstimado }
+        val montoPorPagar = montoPendiente + montoVencido
+
+        setupPieChartGastosProgramados(montoPagado, montoPendiente, montoVencido)
+        binding.porPagarTextView.text = "Por pagar: $%.2f".format(montoPorPagar)
+    }
+
+    private fun setupPieChartGastosProgramados(montoPagado: Double, montoPendiente: Double, montoVencido: Double) {
         val entries = mutableListOf<PieEntry>()
-        val categoryMap = mutableMapOf<String, Float>()
-        transactions.forEach { tx ->
-            val key = "${if (tx.type == TransactionType.INCOME) "Ingreso" else "Gasto"}: ${tx.category}"
-            categoryMap[key] = categoryMap.getOrDefault(key, 0f) + tx.amount.toFloat()
-        }
-        for ((key, value) in categoryMap) {
-            entries.add(PieEntry(value, key))
-        }
-        if (entries.isEmpty()) {
-            entries.add(PieEntry(1f, "Sin datos"))
+        if (montoPagado > 0) entries.add(PieEntry(montoPagado.toFloat(), "Pagado"))
+        if (montoPendiente > 0) entries.add(PieEntry(montoPendiente.toFloat(), "Pendiente"))
+        if (montoVencido > 0) entries.add(PieEntry(montoVencido.toFloat(), "Vencido"))
+
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = listOf(
+                Color.parseColor("#1565C0"),
+                Color.parseColor("#FFD600"),
+                Color.parseColor("#E57373")
+            )
+            valueTextSize = 14f
+            valueTextColor = Color.WHITE
         }
 
-        val dataSet = PieDataSet(entries, "Transacciones por Categoría")
-        dataSet.colors = ColorTemplate.MATERIAL_COLORS.toList() + ColorTemplate.VORDIPLOM_COLORS.toList()
-        val data = PieData(dataSet)
-        data.setValueTextSize(12f)
-        data.setValueTextColor(Color.BLACK)
-
-        binding.pieChart.apply {
-            this.data = data
-            description.isEnabled = false
-            legend.isEnabled = true
-            setUsePercentValues(true)
-            animateY(1000)
-            invalidate()
-        }
+        binding.pieChartGastosProgramados.data = PieData(dataSet)
+        binding.pieChartGastosProgramados.description.isEnabled = false
+        binding.pieChartGastosProgramados.setHoleColor(Color.TRANSPARENT)
+        binding.pieChartGastosProgramados.invalidate()
     }
-    private fun showAddTransactionDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_transaction, null)
 
-        val amountEditText = dialogView.findViewById<EditText>(R.id.editTextAmount)
-        val descriptionEditText = dialogView.findViewById<EditText>(R.id.editTextDescription)
-        val categoryEditText = dialogView.findViewById<EditText>(R.id.editTextCategory)
-        val typeRadioGroup = dialogView.findViewById<RadioGroup>(R.id.radioGroupType)
+    private fun mostrarDialogoPago(expense: ScheduledExpense) {
+        val input = EditText(this)
+        input.hint = "Monto real pagado"
+        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Agregar Transacción")
-            .setView(dialogView)
-            .setPositiveButton("Agregar") { _, _ ->
-                val amount = amountEditText.text.toString().toDoubleOrNull() ?: 0.0
-                val description = descriptionEditText.text.toString()
-                val category = categoryEditText.text.toString()
-                val isIncome = typeRadioGroup.checkedRadioButtonId == R.id.radioButtonIncome
-
-                if (amount > 0 && description.isNotEmpty()) {
-                    val transaction = Transaction(
-                        walletId = walletId,
-                        type = if (isIncome) TransactionType.INCOME else TransactionType.EXPENSE,
-                        amount = amount,
-                        description = description,
-                        category = category.ifEmpty { "General" },
-                        date = Timestamp(Date())
-                    )
-
-                    lifecycleScope.launch {
-                        try {
-                            walletManager.addTransaction(walletId, transaction)
-                            Toast.makeText(this@WalletDetailsActivity, "Transacción agregada", Toast.LENGTH_SHORT).show()
-                            loadWalletData() // Recargar datos
-                        } catch (e: Exception) {
-                            Toast.makeText(this@WalletDetailsActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        AlertDialog.Builder(this)
+            .setTitle("Registrar pago")
+            .setView(input)
+            .setPositiveButton("Confirmar") { _, _ ->
+                val montoReal = input.text.toString().toDoubleOrNull()
+                if (montoReal != null && montoReal > 0) {
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                        .collection("scheduled_expenses")
+                        .document(expense.id)
+                        .update(
+                            mapOf(
+                                "montoReal" to montoReal,
+                                "fechaPago" to System.currentTimeMillis()
+                            )
+                        ).addOnSuccessListener {
+                            cargarGastosProgramadosDeFirestore()
+                            Toast.makeText(this, "¡Pago registrado!", Toast.LENGTH_SHORT).show()
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(this, "Error registrando pago: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                } else {
+                    Toast.makeText(this, "Ingresa un monto válido mayor a 0", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun showShareWalletDialog() {
-        val dialogBinding = DialogShareWalletBinding.inflate(layoutInflater)
+    private fun mostrarDialogoEditarNombre(expense: ScheduledExpense) {
+        val input = EditText(this)
+        input.hint = "Nuevo nombre/categoría"
+        input.setText(expense.categoria)
 
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Compartir Billetera")
-            .setView(dialogBinding.root)
-            .setNegativeButton("Cancelar", null)
-            .create()
-
-        dialogBinding.shareButton.setOnClickListener {
-            val email = dialogBinding.editTextEmail.text.toString().trim()
-            val permission = when (dialogBinding.radioGroupPermission.checkedRadioButtonId) {
-                R.id.radioRead -> SharePermission.READ_ONLY
-                R.id.radioWrite -> SharePermission.READ_WRITE
-                else -> null
-            }
-
-            if (email.isNotBlank() && permission != null) {
-                lifecycleScope.launch {
-                    try {
-                        walletManager.shareWallet(walletId, email, permission)
-                        Toast.makeText(this@WalletDetailsActivity, "Billetera compartida", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    } catch (e: Exception) {
-                        Toast.makeText(this@WalletDetailsActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+        AlertDialog.Builder(this)
+            .setTitle("Editar nombre")
+            .setView(input)
+            .setPositiveButton("Guardar") { _, _ ->
+                val nuevoNombre = input.text.toString().trim()
+                if (nuevoNombre.isNotEmpty()) {
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                        .collection("scheduled_expenses")
+                        .document(expense.id)
+                        .update("categoria", nuevoNombre)
+                        .addOnSuccessListener {
+                            cargarGastosProgramadosDeFirestore()
+                            Toast.makeText(this, "Nombre actualizado", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
-            } else {
-                Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
             }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogoEliminarGasto(expense: ScheduledExpense) {
+        AlertDialog.Builder(this)
+            .setTitle("Eliminar gasto")
+            .setMessage("¿Seguro que quieres eliminar este gasto programado?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("scheduled_expenses")
+                    .document(expense.id)
+                    .delete()
+                    .addOnSuccessListener {
+                        cargarGastosProgramadosDeFirestore()
+                        Toast.makeText(this, "Gasto eliminado", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogoAgregarGastoProgramado() {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 10)
         }
 
-        dialog.show()
+        val inputCategoria = EditText(this).apply {
+            hint = "Categoría"
+        }
+        val inputMonto = EditText(this).apply {
+            hint = "Monto estimado"
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        val inputFecha = EditText(this).apply {
+            hint = "Fecha (dd/MM/yyyy)"
+            inputType = InputType.TYPE_CLASS_DATETIME
+        }
+
+        layout.addView(inputCategoria)
+        layout.addView(inputMonto)
+        layout.addView(inputFecha)
+
+        AlertDialog.Builder(this)
+            .setTitle("Nuevo Gasto Programado")
+            .setView(layout)
+            .setPositiveButton("Agregar") { _, _ ->
+                val categoria = inputCategoria.text.toString().trim()
+                val monto = inputMonto.text.toString().toDoubleOrNull()
+                val fechaStr = inputFecha.text.toString().trim()
+
+                if (categoria.isEmpty() || monto == null || fechaStr.isEmpty()) {
+                    Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val fechaProgramada = try {
+                    sdf.parse(fechaStr)?.time ?: 0L
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Formato de fecha inválido", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val mesActual = SimpleDateFormat("MM-yyyy", Locale.getDefault()).format(Date(fechaProgramada))
+
+                val expenseMap = mapOf(
+                    "billeteraId" to billeteraId!!,
+                    "categoria" to categoria,
+                    "montoEstimado" to monto,
+                    "fechaProgramada" to fechaProgramada,
+                    "mes" to mesActual,
+                    "descripcion" to ""
+                )
+
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("scheduled_expenses")
+                    .add(expenseMap)
+                    .addOnSuccessListener {
+                        cargarGastosProgramadosDeFirestore()
+                        Toast.makeText(this, "¡Gasto programado agregado!", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Error al guardar: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 }

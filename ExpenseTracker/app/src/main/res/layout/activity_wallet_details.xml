@@ -1,80 +1,126 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F8F8F8">
 
-    <ScrollView
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/btnMesAnterior"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            android:tint="#1565C0" />
+
+        <TextView
+            android:id="@+id/tvMesActual"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            android:text="Julio 2025"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center" />
 
-            <TextView
-                android:id="@+id/walletNameText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nombre de la Billetera"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+        <ImageButton
+            android:id="@+id/btnMesSiguiente"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="#1565C0" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/walletBalanceText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Balance: $0.00"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp" />
 
-            <Button
-                android:id="@+id/shareWalletButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Compartir Billetera"
-                android:layout_marginTop="16dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="8dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Resumen"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="32dp" />
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChartGastosProgramados"
+            android:layout_width="230dp"
+            android:layout_height="170dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="2dp"/>
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pieChart"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp" />
+        <TextView
+            android:id="@+id/porPagarTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Por pagar: $0.00"
+            android:textSize="16sp"
+            android:textColor="#E57373"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:padding="4dp"/>
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Historial de Transacciones"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="32dp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/transactionsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp" />
+    <TextView
+        android:id="@+id/tituloPendientesPagados"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gastos Programados"
+        android:textStyle="bold"
+        android:textSize="17sp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:textColor="#1565C0"/>
 
-        </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerPendientesPagados"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingBottom="4dp"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls" />
 
-    </ScrollView>
+
+    <TextView
+        android:id="@+id/tituloVencidos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gastos Vencidos"
+        android:textStyle="bold"
+        android:textSize="17sp"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="4dp"
+        android:textColor="#E57373"
+        android:background="#FFF3F3"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerVencidos"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls"
+        android:visibility="gone"/>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTransactionFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_gravity="end|bottom"
+        android:layout_margin="18dp"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="#FFF"
+        android:backgroundTint="#1565C0"
+        android:contentDescription="Agregar gasto programado"/>
+</LinearLayout>

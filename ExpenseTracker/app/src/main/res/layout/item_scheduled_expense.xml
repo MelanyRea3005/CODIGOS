@@ -1,0 +1,106 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:elevation="2dp"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/scheduledCategory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Categoría"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/scheduledStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pendiente"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:background="@drawable/status_rounded_bg" />
+
+            <Button
+                android:id="@+id/scheduledPayButton"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="PAGAR"
+                android:textAllCaps="true"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:visibility="gone"
+                android:backgroundTint="@color/blue_500"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:id="@+id/scheduledDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="10 Jul 2025"
+                android:textSize="13sp"
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/scheduledAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Programado: $0.00"
+                android:textSize="13sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginEnd="12dp" />
+
+            <ImageButton
+                android:id="@+id/btnEdit"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Editar"
+                android:tint="@color/blue_500"
+                android:layout_marginEnd="6dp" />
+
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Eliminar"
+                android:tint="@color/red_400"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

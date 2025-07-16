@@ -7,6 +7,6 @@ data class Expense(
     val date: String = "",
     val category: String? = null,
     val userId: String = "",
-    val type: String = "gasto",
+    val type: String = "",
     val createdAt: Long? = null
 )

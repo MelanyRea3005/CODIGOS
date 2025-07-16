@@ -13,13 +13,32 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/walletNameText"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nombre de la Billetera"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/walletNameText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nombre de la Billetera"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/walletMenuButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_more"
+                android:contentDescription="Opciones"
+                android:focusable="false"
+                android:clickable="true" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/walletBalanceText"
@@ -29,6 +48,25 @@
             android:textSize="16sp"
             android:layout_marginTop="8dp" />
 
+
+        <TextView
+            android:id="@+id/walletPendingCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pendientes por pagar: 0"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_orange_dark"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/walletPaidCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pagados: 0"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:layout_marginTop="2dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,23 +74,12 @@
             android:layout_marginTop="16dp">
 
             <Button
-                android:id="@+id/viewDetailsButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Ver Detalles"
-                android:layout_marginEnd="8dp" />
-
-            <Button
                 android:id="@+id/shareButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Compartir"
-                android:layout_marginStart="8dp" />
+                android:text="Compartir" />
 
         </LinearLayout>
-
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

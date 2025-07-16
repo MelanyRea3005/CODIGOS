@@ -10,4 +10,6 @@
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="ic_launcher_background">@color/primary</color>
+    <color name="blue_500">#1565C0</color>
+    <color name="red_400">#E57373</color>
 </resources>

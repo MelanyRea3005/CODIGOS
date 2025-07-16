@@ -10,10 +10,10 @@ object AuthManager {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // Tus funciones existentes
+
     suspend fun signUp(email: String, password: String): FirebaseUser? {
         val result = auth.createUserWithEmailAndPassword(email, password).await()
-        // Agregar creación del documento de usuario en Firestore
+
         result.user?.let { user ->
             val userData = hashMapOf(
                 "email" to email,
@@ -37,7 +37,7 @@ object AuthManager {
         return auth.currentUser
     }
 
-    // Nuevas funciones necesarias para la gestión de billeteras
+
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }

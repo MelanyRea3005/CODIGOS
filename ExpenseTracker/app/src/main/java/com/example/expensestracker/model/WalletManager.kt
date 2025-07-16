@@ -12,6 +12,7 @@ import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 class WalletManager {
     private val db = FirebaseFirestore.getInstance()
     private val walletsCollection = db.collection("wallets")
@@ -88,6 +89,7 @@ class WalletManager {
                 }
             }
     }
+
     suspend fun shareWallet(walletId: String, email: String, permission: SharePermission) {
         val targetUserId = AuthManager.findUserByEmail(email)
             ?: throw IllegalArgumentException("Usuario no encontrado")
@@ -171,11 +173,41 @@ class WalletManager {
         return Pair(income, expense)
     }
 
-
     suspend fun getUserPermission(walletId: String, userId: String?): SharePermission? {
         if (userId == null) return null
         val wallet = getWallet(walletId) ?: return null
         if (wallet.ownerId == userId) return SharePermission.READ_WRITE
         return wallet.sharedWith[userId]
+    }
+
+
+    suspend fun updateWalletName(walletId: String, newName: String) {
+        val wallet = getWallet(walletId) ?: throw IllegalStateException("Billetera no encontrada")
+        val currentUser = AuthManager.getCurrentUser() ?: throw IllegalStateException("No hay usuario autenticado")
+
+        if (wallet.ownerId != currentUser.uid) {
+            throw IllegalStateException("No tienes permiso para editar esta billetera")
+        }
+
+        walletsCollection.document(walletId)
+            .update("name", newName)
+            .await()
+    }
+
+
+    suspend fun deleteWallet(walletId: String) {
+        val wallet = getWallet(walletId) ?: throw IllegalStateException("Billetera no encontrada")
+        val currentUser = AuthManager.getCurrentUser() ?: throw IllegalStateException("No hay usuario autenticado")
+
+        if (wallet.ownerId != currentUser.uid) {
+            throw IllegalStateException("No tienes permiso para eliminar esta billetera")
+        }
+
+        walletsCollection.document(walletId).delete().await()
+
+        val txsSnapshot = transactionsCollection.whereEqualTo("walletId", walletId).get().await()
+        for (doc in txsSnapshot.documents) {
+            doc.reference.delete().await()
+        }
     }
 }
