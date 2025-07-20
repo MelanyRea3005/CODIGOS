@@ -117,14 +117,16 @@ class WalletManager {
     }
 
     suspend fun addTransaction(walletId: String, transaction: Transaction) {
-        if (!AuthManager.checkWalletAccess(walletId)) {
-            throw IllegalStateException("No tienes acceso a esta billetera")
+        val currentUserId = AuthManager.getCurrentUserId() ?: ""
+        val permission = getUserPermission(walletId, currentUserId)
+        if (permission != SharePermission.READ_WRITE) {
+            throw IllegalStateException("No tienes permiso para modificar esta billetera")
         }
 
         val transactionWithId = transaction.copy(
             id = UUID.randomUUID().toString(),
             walletId = walletId,
-            userId = AuthManager.getCurrentUserId() ?: ""
+            userId = currentUserId
         )
 
         transactionsCollection.document(transactionWithId.id).set(transactionWithId).await()

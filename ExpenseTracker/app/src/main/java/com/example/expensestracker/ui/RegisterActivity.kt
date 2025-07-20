@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.expensestracker.R
 import com.example.expensestracker.network.AuthManager
@@ -12,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.expensestracker.ui.MainActivity
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -23,6 +23,7 @@ class RegisterActivity : AppCompatActivity() {
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val registerButton = findViewById<Button>(R.id.registerButton)
+        val loginLink = findViewById<TextView>(R.id.loginLink)
 
         registerButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -31,6 +32,13 @@ class RegisterActivity : AppCompatActivity() {
             if (validateInput(email, password)) {
                 registerUser(email, password)
             }
+        }
+
+        // Enlace para ir a la pantalla de inicio de sesión (MainActivity)
+        loginLink.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 

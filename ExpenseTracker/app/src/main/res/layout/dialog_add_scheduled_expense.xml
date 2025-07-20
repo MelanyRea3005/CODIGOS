@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:text="Agregar gasto programado"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:textColor="#1565C0"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/inputCategoria"
+        android:hint="Categoría"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/inputMonto"
+        android:hint="Monto estimado"
+        android:inputType="numberDecimal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/inputFecha"
+        android:hint="Fecha (dd/MM/yyyy)"
+        android:focusable="false"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_marginBottom="24dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancelar"
+            android:text="Cancelar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnAgregar"
+            android:text="Agregar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:backgroundTint="#1565C0"/>
+    </LinearLayout>
+
+</LinearLayout>

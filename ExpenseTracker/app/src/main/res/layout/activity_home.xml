@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="HOME"
+            android:text="Mi billetera personal"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#24292F"
@@ -159,16 +159,6 @@
             android:layout_marginBottom="14dp"/>
 
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Gastos Programados"
-            android:textStyle="bold"
-            android:textSize="17sp"
-            android:textColor="#24292F"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start" />
 
 
         <androidx.recyclerview.widget.RecyclerView

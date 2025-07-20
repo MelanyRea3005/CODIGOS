@@ -3,7 +3,6 @@ package com.example.expensestracker.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -13,74 +12,78 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class ScheduledExpenseAdapter(
-    private var items: List<ScheduledExpense>,
+    private var expenses: List<ScheduledExpense>,
     private val onMarkAsPaid: (ScheduledExpense) -> Unit,
     private val onEdit: (ScheduledExpense) -> Unit,
-    private val onDelete: (ScheduledExpense) -> Unit
+    private val onDelete: (ScheduledExpense) -> Unit,
+    private val isReadOnly: Boolean
 ) : RecyclerView.Adapter<ScheduledExpenseAdapter.ViewHolder>() {
 
     fun updateList(newList: List<ScheduledExpense>) {
-        items = newList
+        expenses = newList
         notifyDataSetChanged()
     }
 
+    override fun getItemCount() = expenses.size
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_scheduled_expense, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_scheduled_expense, parent, false)
         return ViewHolder(v)
     }
 
-    override fun getItemCount() = items.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position], onMarkAsPaid, onEdit, onDelete)
+        val expense = expenses[position]
+        holder.bind(expense, isReadOnly)
+
+        // Solo asigna listeners si NO es solo lectura
+        if (!isReadOnly) {
+            holder.btnPagar.setOnClickListener { onMarkAsPaid(expense) }
+            holder.btnEditar.setOnClickListener { onEdit(expense) }
+            holder.btnEliminar.setOnClickListener { onDelete(expense) }
+        } else {
+            // Listeners nulos para evitar interacción
+            holder.btnPagar.setOnClickListener(null)
+            holder.btnEditar.setOnClickListener(null)
+            holder.btnEliminar.setOnClickListener(null)
+            // Además, asegura que no puedan interactuar (opcional):
+            holder.btnPagar.isEnabled = false
+            holder.btnEditar.isEnabled = false
+            holder.btnEliminar.isEnabled = false
+        }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val categoria: TextView = itemView.findViewById(R.id.scheduledCategory)
-        private val monto: TextView = itemView.findViewById(R.id.scheduledAmount)
-        private val fecha: TextView = itemView.findViewById(R.id.scheduledDate)
-        private val estado: TextView = itemView.findViewById(R.id.scheduledStatus)
-        private val btnPagar: Button = itemView.findViewById(R.id.scheduledPayButton)
-        private val btnEdit: ImageButton = itemView.findViewById(R.id.btnEdit)
-        private val btnDelete: ImageButton = itemView.findViewById(R.id.btnDelete)
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvCategoria: TextView = view.findViewById(R.id.tvCategoria)
+        val tvEstado: TextView = view.findViewById(R.id.tvEstado)
+        val tvFecha: TextView = view.findViewById(R.id.tvFecha)
+        val tvMonto: TextView = view.findViewById(R.id.tvMonto)
+        val btnPagar: ImageButton = view.findViewById(R.id.btnPagar)
+        val btnEditar: ImageButton = view.findViewById(R.id.btnEditar)
+        val btnEliminar: ImageButton = view.findViewById(R.id.btnEliminar)
 
-        fun bind(
-            expense: ScheduledExpense,
-            onMarkAsPaid: (ScheduledExpense) -> Unit,
-            onEdit: (ScheduledExpense) -> Unit,
-            onDelete: (ScheduledExpense) -> Unit
-        ) {
-            categoria.text = expense.categoria
-            monto.text = "Programado: $%.2f".format(expense.montoEstimado)
-            fecha.text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(expense.fechaProgramada))
+        fun bind(expense: ScheduledExpense, isReadOnly: Boolean) {
+            tvCategoria.text = expense.categoria
+            tvFecha.text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(expense.fechaProgramada))
+            tvMonto.text = "Programado: $%.2f".format(expense.montoEstimado)
 
-            val now = System.currentTimeMillis()
-            val pagado = expense.fechaPago != null
-            val vencido = !pagado && expense.fechaProgramada < now
-            val pendiente = !pagado && !vencido
-
-            when {
-                pagado -> {
-                    estado.text = "Pagado: $%.2f".format(expense.montoReal ?: 0.0)
-                    estado.setTextColor(itemView.context.getColor(R.color.blue_500))
-                    btnPagar.visibility = View.GONE
+            if (expense.fechaPago != null) {
+                tvEstado.text = "Pagado"
+                tvEstado.setBackgroundResource(R.drawable.bg_estado_pagado)
+                btnPagar.visibility = View.GONE
+            } else {
+                val now = System.currentTimeMillis()
+                if (expense.fechaProgramada < now) {
+                    tvEstado.text = "Vencido"
+                    tvEstado.setBackgroundResource(R.drawable.bg_estado_vencido)
+                } else {
+                    tvEstado.text = "Pendiente"
+                    tvEstado.setBackgroundResource(R.drawable.bg_estado_pendiente)
                 }
-                vencido -> {
-                    estado.text = "Vencido"
-                    estado.setTextColor(itemView.context.getColor(R.color.red_400))
-                    btnPagar.visibility = View.VISIBLE
-                }
-                pendiente -> {
-                    estado.text = "Pendiente"
-                    estado.setTextColor(0xFFFFA000.toInt())
-                    btnPagar.visibility = View.VISIBLE
-                }
+                btnPagar.visibility = if (isReadOnly) View.GONE else View.VISIBLE
             }
 
-            btnPagar.setOnClickListener { onMarkAsPaid(expense) }
-            btnEdit.setOnClickListener { onEdit(expense) }
-            btnDelete.setOnClickListener { onDelete(expense) }
+            btnEditar.visibility = if (isReadOnly) View.GONE else View.VISIBLE
+            btnEliminar.visibility = if (isReadOnly) View.GONE else View.VISIBLE
         }
     }
 }

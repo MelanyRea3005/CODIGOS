@@ -1,117 +1,159 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rootLayout"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordinatorRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#F8F8F8">
 
-
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <ImageButton
-            android:id="@+id/btnMesAnterior"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_media_previous"
-            android:tint="#1565C0" />
-
-        <TextView
-            android:id="@+id/tvMesActual"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/rootLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Julio 2025"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center" />
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/btnMesSiguiente"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_media_next"
-            android:tint="#1565C0" />
-    </LinearLayout>
+            <!-- Selector de mes y gráfica -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
+                <ImageButton
+                    android:id="@+id/btnMesAnterior"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_media_previous"
+                    android:tint="#1565C0" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingBottom="8dp">
+                <TextView
+                    android:id="@+id/tvMesActual"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Julio 2025"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
 
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/pieChartGastosProgramados"
-            android:layout_width="230dp"
-            android:layout_height="170dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="2dp"/>
+                <ImageButton
+                    android:id="@+id/btnMesSiguiente"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_media_next"
+                    android:tint="#1565C0" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/porPagarTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Por pagar: $0.00"
-            android:textSize="16sp"
-            android:textColor="#E57373"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:padding="4dp"/>
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingBottom="8dp">
 
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieChartGastosProgramados"
+                    android:layout_width="230dp"
+                    android:layout_height="170dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="2dp"/>
 
-    <TextView
-        android:id="@+id/tituloPendientesPagados"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Gastos Programados"
-        android:textStyle="bold"
-        android:textSize="17sp"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp"
-        android:textColor="#1565C0"/>
+                <TextView
+                    android:id="@+id/porPagarTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Por pagar: $0.00"
+                    android:textSize="16sp"
+                    android:textColor="#E57373"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:padding="4dp"/>
+            </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerPendientesPagados"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingBottom="4dp"
-        android:clipToPadding="false"
-        android:overScrollMode="ifContentScrolls" />
+            <!-- Gastos Pagados del mes seleccionado -->
+            <TextView
+                android:id="@+id/tituloPagados"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gastos Pagados"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:paddingStart="16dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="4dp"
+                android:textColor="#1976D2"/>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerPagados"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="ifContentScrolls"/>
 
-    <TextView
-        android:id="@+id/tituloVencidos"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Gastos Vencidos"
-        android:textStyle="bold"
-        android:textSize="17sp"
-        android:paddingStart="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="4dp"
-        android:textColor="#E57373"
-        android:background="#FFF3F3"
-        android:visibility="gone"/>
+            <!-- Gastos Generales -->
+            <TextView
+                android:id="@+id/tituloGenerales"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gastos Generales"
+                android:textStyle="bold"
+                android:textSize="17sp"
+                android:paddingStart="16dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="6dp"
+                android:textColor="#1565C0"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerVencidos"
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:clipToPadding="false"
-        android:overScrollMode="ifContentScrolls"
-        android:visibility="gone"/>
+            <LinearLayout
+                android:id="@+id/layoutBotonesGenerales"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="#1976D2">
 
+                <TextView
+                    android:id="@+id/btnPendientesGenerales"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="PENDIENTES"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:background="@android:color/transparent" />
+
+                <TextView
+                    android:id="@+id/btnVencidosGenerales"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="VENCIDOS"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="#1976D2"
+                    android:gravity="center"
+                    android:background="#FFFFFF" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerGenerales"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="ifContentScrolls"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTransactionFab"
@@ -123,4 +165,4 @@
         android:tint="#FFF"
         android:backgroundTint="#1565C0"
         android:contentDescription="Agregar gasto programado"/>
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

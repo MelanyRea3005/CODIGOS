@@ -13,6 +13,7 @@ import com.example.expensestracker.model.Expense
 import com.example.expensestracker.model.ScheduledExpense
 import com.example.expensestracker.model.Wallet
 import com.example.expensestracker.repository.ScheduledExpenseRepository
+import com.example.expensestracker.network.AuthManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
@@ -43,6 +44,7 @@ class HomeActivity : AppCompatActivity() {
         binding.expensesRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.expensesRecyclerView.adapter = expenseAdapter
 
+        // CORREGIDO: Añade el parámetro isReadOnly = false
         scheduledExpenseAdapter = ScheduledExpenseAdapter(
             emptyList(),
             onMarkAsPaid = { expense -> mostrarDialogoPago(expense) },
@@ -51,13 +53,14 @@ class HomeActivity : AppCompatActivity() {
             },
             onDelete = { _ ->
                 Toast.makeText(this, "Solo puedes eliminar desde Wallet Details.", Toast.LENGTH_SHORT).show()
-            }
+            },
+            isReadOnly = false // <-- SOLUCIÓN AQUÍ!
         )
         binding.scheduledExpensesRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.scheduledExpensesRecyclerView.adapter = scheduledExpenseAdapter
 
         setupListeners()
-        cargarBilleteras() // Carga las billeteras y configura el spinner
+        cargarBilleteras()
         cargarDatosDeFirestore()
     }
 
@@ -72,7 +75,9 @@ class HomeActivity : AppCompatActivity() {
 
     private fun cargarBilleteras() {
         val db = FirebaseFirestore.getInstance()
+        val userId = AuthManager.getCurrentUserUid()
         db.collection("wallets")
+            .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { result ->
                 billeteras = result.documents.mapNotNull { doc ->
@@ -83,7 +88,6 @@ class HomeActivity : AppCompatActivity() {
                 val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, nombres)
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 binding.spinnerBilletera.adapter = adapter
-
 
                 if (billeteras.isNotEmpty()) {
                     billeteraActivaId = billeteras[0].id
@@ -111,7 +115,9 @@ class HomeActivity : AppCompatActivity() {
 
     private fun cargarDatosDeFirestore() {
         val db = FirebaseFirestore.getInstance()
+        val userId = AuthManager.getCurrentUserUid()
         db.collection("expenses")
+            .whereEqualTo("userId", userId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { result ->

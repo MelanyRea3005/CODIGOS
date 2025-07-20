@@ -10,7 +10,6 @@ object AuthManager {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-
     suspend fun signUp(email: String, password: String): FirebaseUser? {
         val result = auth.createUserWithEmailAndPassword(email, password).await()
 
@@ -37,8 +36,12 @@ object AuthManager {
         return auth.currentUser
     }
 
-
     fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
+    }
+
+    // NUEVA FUNCIÓN COMPATIBLE
+    fun getCurrentUserUid(): String? {
         return auth.currentUser?.uid
     }
 

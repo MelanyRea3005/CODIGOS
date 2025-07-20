@@ -29,11 +29,28 @@ class ScheduledExpenseRepository {
             }
     }
 
+    fun getAllScheduledExpenses(
+        billeteraId: String,
+        onResult: (List<ScheduledExpense>) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        db.collection("scheduled_expenses")
+            .whereEqualTo("billeteraId", billeteraId)
+            .orderBy("fechaProgramada", Query.Direction.ASCENDING)
+            .get()
+            .addOnSuccessListener { result ->
+                val expenses = result.documents.mapNotNull { it.toObject(ScheduledExpense::class.java)?.copy(id = it.id) }
+                onResult(expenses)
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
+    }
+
     fun crearGastoProgramado(
         expense: ScheduledExpense,
         onComplete: (Boolean) -> Unit
     ) {
-        // Siempre agrega el campo estado
         val expenseMap = hashMapOf(
             "billeteraId" to expense.billeteraId,
             "categoria" to expense.categoria,
@@ -43,7 +60,8 @@ class ScheduledExpenseRepository {
             "montoEstimado" to expense.montoEstimado,
             "estado" to "pendiente",
             "montoReal" to null,
-            "fechaPago" to null
+            "fechaPago" to null,
+            "userId" to expense.userId
         )
         db.collection("scheduled_expenses")
             .add(expenseMap)
@@ -69,45 +87,24 @@ class ScheduledExpenseRepository {
             .addOnFailureListener { onComplete(false) }
     }
 
-    fun clonarGastosProgramadosDeMesAnterior(
-        billeteraId: String,
-        mesAnterior: String,
-        mesNuevo: String,
+    fun editarCategoria(
+        id: String,
+        nuevaCategoria: String,
         onComplete: (Boolean) -> Unit
     ) {
-        db.collection("scheduled_expenses")
-            .whereEqualTo("billeteraId", billeteraId)
-            .whereEqualTo("mes", mesAnterior)
-            .get()
-            .addOnSuccessListener { result ->
-                val batch = db.batch()
-                for (doc in result.documents) {
-                    val data = doc.data?.toMutableMap() ?: continue
-                    data["mes"] = mesNuevo
-                    data["estado"] = "pendiente"
-                    data["montoReal"] = null
-                    data["fechaPago"] = null
+        db.collection("scheduled_expenses").document(id)
+            .update("categoria", nuevaCategoria)
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { onComplete(false) }
+    }
 
-                    val cal = Calendar.getInstance()
-                    cal.timeInMillis = (data["fechaProgramada"] as? Long) ?: 0L
-                    val sdf = SimpleDateFormat("MM-yyyy", Locale.getDefault())
-                    val nuevoDate = sdf.parse(mesNuevo)
-                    if (nuevoDate != null) {
-                        val calNuevo = Calendar.getInstance()
-                        calNuevo.time = nuevoDate
-                        cal.set(Calendar.MONTH, calNuevo.get(Calendar.MONTH))
-                        cal.set(Calendar.YEAR, calNuevo.get(Calendar.YEAR))
-                    }
-                    data["fechaProgramada"] = cal.timeInMillis
-                    data.remove("id")
-                    db.collection("scheduled_expenses").document().let { batch.set(it, data) }
-                }
-                batch.commit().addOnCompleteListener { task ->
-                    onComplete(task.isSuccessful)
-                }
-            }
-            .addOnFailureListener {
-                onComplete(false)
-            }
+    fun eliminarGasto(
+        id: String,
+        onComplete: (Boolean) -> Unit
+    ) {
+        db.collection("scheduled_expenses").document(id)
+            .delete()
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { onComplete(false) }
     }
 }

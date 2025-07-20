@@ -39,7 +39,7 @@ class WalletAdapter(
         fun bind(walletWithCounts: WalletWithCounts) {
             val wallet = walletWithCounts.wallet
             binding.walletNameText.text = wallet.name
-            binding.walletBalanceText.text = "$ ${wallet.balance}"
+
 
 
             binding.walletPendingCount.text = "Pendientes por pagar: ${walletWithCounts.pendingCount}"

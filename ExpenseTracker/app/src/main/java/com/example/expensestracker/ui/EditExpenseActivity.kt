@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.expensestracker.databinding.ActivityEditExpenseBinding
+import com.example.expensestracker.network.AuthManager
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
@@ -21,7 +22,6 @@ class EditExpenseActivity : AppCompatActivity() {
         binding = ActivityEditExpenseBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categorias)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerCategoria.adapter = adapter
@@ -34,7 +34,6 @@ class EditExpenseActivity : AppCompatActivity() {
         }
 
         cargarDatosGasto()
-
 
         binding.etFecha.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -67,7 +66,6 @@ class EditExpenseActivity : AppCompatActivity() {
                 binding.etMonto.setText((doc.getDouble("amount") ?: 0.0).toString())
                 binding.etFecha.setText(doc.getString("date") ?: "")
 
-
                 val categoriaDoc = doc.getString("category") ?: ""
                 val index = categorias.indexOfFirst { it.equals(categoriaDoc, ignoreCase = true) }
                 if (index >= 0) {
@@ -82,11 +80,14 @@ class EditExpenseActivity : AppCompatActivity() {
 
     private fun guardarCambios() {
         val db = FirebaseFirestore.getInstance()
+        val userId = AuthManager.getCurrentUserUid() ?: "demoUser"
+
         val updates = mapOf(
             "description" to binding.etDescripcion.text.toString(),
             "amount" to (binding.etMonto.text.toString().toDoubleOrNull() ?: 0.0),
             "date" to binding.etFecha.text.toString(),
-            "category" to binding.spinnerCategoria.selectedItem.toString()
+            "category" to binding.spinnerCategoria.selectedItem.toString(),
+            "userId" to userId
         )
         db.collection("expenses").document(expenseId!!)
             .update(updates)

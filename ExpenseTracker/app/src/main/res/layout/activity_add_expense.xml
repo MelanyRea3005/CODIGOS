@@ -86,6 +86,16 @@
             android:textColor="#212121"/>
     </RadioGroup>
 
+
+    <CheckBox
+        android:id="@+id/checkboxRecurrente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gasto recurrente"
+        android:textColor="#212121"
+        android:layout_marginBottom="14dp"
+        android:layout_gravity="center_horizontal"/>
+
     <Button
         android:id="@+id/btnGuardar"
         android:text="GUARDAR"

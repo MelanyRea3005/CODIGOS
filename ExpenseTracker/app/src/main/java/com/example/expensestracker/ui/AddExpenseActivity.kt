@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.expensestracker.databinding.ActivityAddExpenseBinding
+import com.example.expensestracker.network.AuthManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 import java.util.*
@@ -22,11 +23,9 @@ class AddExpenseActivity : AppCompatActivity() {
         binding = ActivityAddExpenseBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categorias)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerCategoria.adapter = adapter
-
 
         binding.rgTipo.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == binding.radioGasto.id) {
@@ -41,7 +40,6 @@ class AddExpenseActivity : AppCompatActivity() {
         } else {
             binding.spinnerCategoria.visibility = View.VISIBLE
         }
-
 
         binding.etFecha.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -64,6 +62,8 @@ class AddExpenseActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
         val type = if (binding.radioGasto.isChecked) "gasto" else "ingreso"
         val categoriaSeleccionada = if (binding.radioGasto.isChecked) binding.spinnerCategoria.selectedItem.toString() else ""
+        val userId = AuthManager.getCurrentUserUid() ?: "demoUser"
+        val isRecurrent = binding.checkboxRecurrente.isChecked
 
         val data = hashMapOf(
             "description" to binding.etDescripcion.text.toString(),
@@ -72,7 +72,8 @@ class AddExpenseActivity : AppCompatActivity() {
             "category" to categoriaSeleccionada,
             "type" to type,
             "createdAt" to Timestamp(Date()),
-            "userId" to "demoUser"
+            "userId" to userId,
+            "isRecurrent" to isRecurrent // Este campo indica si es recurrente
         )
 
         db.collection("expenses")
